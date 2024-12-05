@@ -1,0 +1,70 @@
+method : lora # Decide on the fine tuning method to be followed
+fraction_of_data: 0.01
+random_state: 42
+do_save_model_checkpoints: True
+do_evaluation: True
+do_training: True
+
+methods:
+  - prompt_tuning
+  - last_layer
+  - lora
+
+paths:
+  train_df: "CNN_dataset/train.csv"
+  val_df: "CNN_dataset/validation.csv"
+  test_df: "CNN_dataset/test.csv"
+  model_save_path: "saved_models/prompt_tuning_model.pt"
+
+
+prompt_tuning:
+  lr: 1e-4
+  num_tokens: 20 # Number of tokens to add to prompt-tuning
+  soft_prompt: "SUMMARIZE" 
+  wandb_run_name: "prompt_tuning"
+  model_save_path: "saved_models/prompt_tuning_model.pt"
+  
+
+last_layer:
+  lr: 1e-7
+  model_save_path: "saved_models/last_layer_model.pt"
+  wandb_run_name: "last_layer"
+
+lora:
+  lr: 1e-7
+  wandb_run_name: "lora"
+  rank: 16
+  alpha: 32
+  dropout: 0.2
+  model_save_path: "saved_models/lora_model_rank16.pt"
+
+training:
+  num_epochs: 10
+  batch_size: 4
+  max_grad_norm: 1.0
+  early_stopping_patience: 3
+  early_stopping_min_delta: 1e-2
+  loss_window_size: 500    # size of sliding window for loss tracking
+  plateau_threshold: 1e-5    # minimum relative improvement required
+  plateau_patience: 10       # number of plateau windows before stopping
+
+validation:
+  batch_size: 1
+  max_length: 128
+
+model_name: "gpt2"
+
+wandb_logging: True
+wandb_project: "gpt_fine_tuning"
+entity: "vemulasakethreddy_10"
+
+clip_grads: True
+
+num_accumulate: 4
+gradient_accumulate: True
+
+generation:
+  max_new_tokens: 128  # Maximum length of generated summary
+  num_beams: 4        # Number of beams for beam search
+  no_repeat_ngram_size: 3  # Prevent repetition of n-grams
+  length_penalty: 1.0  # Encourage longer/shorter summaries (>1 longer, <1 shorter)
